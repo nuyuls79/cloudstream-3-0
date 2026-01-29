@@ -8,8 +8,9 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      ANDROID_SDK_ROOT: /usr/local/android-sdk
-      ANDROID_HOME: /usr/local/android-sdk
+      ANDROID_SDK_ROOT: /opt/android-sdk
+      ANDROID_HOME: /opt/android-sdk
+      PATH: /opt/android-sdk/cmdline-tools/latest/bin:/opt/android-sdk/platform-tools:${{ env.PATH }}
 
     steps:
       - name: Checkout source
@@ -21,19 +22,25 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      # 🔥 STEP PALING PENTING
-      - name: Install Android SDK (LEGACY)
+      # 🔥 STEP KUNCI: HAPUS SDK BAWAAN GITHUB
+      - name: Remove preinstalled Android SDK
+        run: |
+          sudo rm -rf /usr/lib/android-sdk
+          sudo rm -rf /usr/local/lib/android/sdk || true
+
+      # 🔥 INSTALL SDK LEGACY (ERA ANDROID 11)
+      - name: Install Android SDK (Legacy)
         run: |
           sudo mkdir -p $ANDROID_SDK_ROOT
           sudo chown -R $USER:$USER $ANDROID_SDK_ROOT
 
           curl -o cmdline.zip https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip
-          unzip cmdline.zip
+          unzip -q cmdline.zip
           mkdir -p $ANDROID_SDK_ROOT/cmdline-tools
           mv cmdline-tools $ANDROID_SDK_ROOT/cmdline-tools/latest
 
-          yes | $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --licenses
-          $ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager \
+          yes | sdkmanager --licenses
+          sdkmanager \
             "platform-tools" \
             "platforms;android-30" \
             "build-tools;30.0.3"
@@ -52,7 +59,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build Debug APK
-        run: ./gradlew assembleDebug --stacktrace
+        run: ./gradlew assembleDebug --stacktrace --info
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
