@@ -16,10 +16,20 @@ jobs:
           distribution: temurin
           java-version: 11
 
-      # 🔥 INSTALL ANDROID SDK LEGACY (XML v2)
+      # 🔥 STEP KUNCI: HAPUS SEMUA SDK & CACHE MODERN
+      - name: Remove all Android caches
+        run: |
+          rm -rf ~/.android
+          rm -rf ~/.cache/android
+          rm -rf ~/.gradle/caches
+          sudo rm -rf /usr/lib/android-sdk
+          sudo rm -rf /usr/local/lib/android
+
+      # 🔥 INSTALL SDK LEGACY (ANDROID 11 ERA)
       - name: Install Android SDK Legacy
         run: |
           export ANDROID_SDK_ROOT=$HOME/android-sdk
+          export ANDROID_HOME=$ANDROID_SDK_ROOT
           mkdir -p $ANDROID_SDK_ROOT
 
           curl -o cmdline.zip https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip
@@ -27,18 +37,26 @@ jobs:
           mkdir -p $ANDROID_SDK_ROOT/cmdline-tools
           mv cmdline-tools $ANDROID_SDK_ROOT/cmdline-tools/latest
 
-          echo "sdk.dir=$ANDROID_SDK_ROOT" > local.properties
-
           export PATH=$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools:$PATH
 
+          echo "sdk.dir=$ANDROID_SDK_ROOT" > local.properties
+
           yes | sdkmanager --licenses
-          sdkmanager "platform-tools" "platforms;android-30" "build-tools;30.0.3"
+          sdkmanager \
+            "platform-tools" \
+            "platforms;android-30" \
+            "build-tools;30.0.3"
 
       - name: Grant execute permission
         run: chmod +x gradlew
 
+      # 🔥 PAKSA GRADLE PAKAI SDK INI
       - name: Build Debug APK
-        run: ./gradlew assembleDebug --stacktrace
+        run: |
+          ./gradlew assembleDebug \
+            -Dandroid.sdk.path=$ANDROID_SDK_ROOT \
+            --no-daemon \
+            --stacktrace
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
