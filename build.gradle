@@ -22,9 +22,12 @@ allprojects {
     repositories {
         google()
         mavenCentral()
-        maven { url "https://jitpack.io" }
-        // Tambahkan ini sebagai cadangan jika JitPack utama lambat
-        maven { url "https://www.jitpack.io" } 
+        maven { 
+            url 'https://jitpack.io'
+            // Tambahkan content filtering agar tidak mencari library google di jitpack (opsional tapi bagus untuk speed)
+            content { includeGroup "com.github.Blatzar" }
+            content { includeGroup "com.github.lagradost" }
+        }
     }
 }
 
