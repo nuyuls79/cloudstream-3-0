@@ -23,6 +23,8 @@ allprojects {
         google()
         mavenCentral()
         maven { url "https://jitpack.io" }
+        // Tambahkan ini sebagai cadangan jika JitPack utama lambat
+        maven { url "https://www.jitpack.io" } 
     }
 }
 
