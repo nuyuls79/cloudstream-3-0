@@ -4,32 +4,34 @@ plugins {
     id 'kotlin-kapt'
 }
 
-/* ===== SIGNING (AMAN UNTUK CI) ===== */
-def tmpFilePath = System.getProperty("user.home") + "/work/_temp/keystore/"
-def allFilesFromDir = new File(tmpFilePath).listFiles()
-def prerelaseStoreFile = allFilesFromDir != null ? allFilesFromDir.first() : null
+/* ===== SIGNING (DIPERBAIKI UNTUK GITHUB ACTIONS) ===== */
+// Skrip ini akan mencari file keystore di folder yang ditentukan oleh GitHub Actions
+def keystorePath = System.getenv("TMP_KEYSTORE_PATH") ?: (System.getProperty("user.home") + "/work/_temp/keystore/")
+def keystoreDir = new File(keystorePath)
+def prerelaseStoreFile = null
+
+if (keystoreDir.exists()) {
+    def files = keystoreDir.listFiles()
+    if (files != null && files.length > 0) {
+        prerelaseStoreFile = files[0]
+    }
+}
 
 android {
-
     compileSdkVersion 31
     buildToolsVersion "30.0.3"
 
     defaultConfig {
         applicationId "com.stormunblessed.cloudstream3"
         minSdkVersion 21
-        targetSdkVersion 30
+        targetSdkVersion 31 // Disarankan disamakan dengan compileSdkVersion
 
         versionCode 49
         versionName "3.0.1"
 
-        resValue "string", "app_version",
-                "${versionName}${versionNameSuffix ?: ""}"
+        resValue "string", "app_version", "${versionName}${versionNameSuffix ?: ""}"
 
-        buildConfigField(
-                "String",
-                "BUILDDATE",
-                "\"${new Date().format("yyyy-MM-dd HH:mm")}\""
-        )
+        buildConfigField("String", "BUILDDATE", "\"${new Date().format("yyyy-MM-dd HH:mm")}\"")
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -55,9 +57,7 @@ android {
             debuggable false
             minifyEnabled false
             shrinkResources false
-            proguardFiles getDefaultProguardFile(
-                    'proguard-android-optimize.txt'
-            ), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
 
         prerelease {
@@ -85,7 +85,7 @@ android {
     }
 }
 
-/* ===== REPOSITORIES (WAJIB UNTUK GITHUB ACTIONS) ===== */
+/* ===== REPOSITORIES ===== */
 repositories {
     google()
     mavenCentral()
@@ -94,7 +94,6 @@ repositories {
 
 /* ===== DEPENDENCIES ===== */
 dependencies {
-
     implementation 'androidx.core:core-ktx:1.8.0'
     implementation 'androidx.appcompat:appcompat:1.4.2'
     implementation 'com.google.android.material:material:1.5.0'
@@ -139,8 +138,8 @@ dependencies {
     implementation "androidx.work:work-runtime:2.7.1"
     implementation "androidx.work:work-runtime-ktx:2.7.1"
 
-    /* ===== NETWORKING (INI YANG ERROR KEMARIN) ===== */
-    implementation 'com.github.Blatzar:NiceHttp:0.3.2'
+    /* ===== NETWORKING (DIUPDATE DARI 0.3.2 KE 0.4.5) ===== */
+    implementation 'com.github.Blatzar:NiceHttp:0.4.5'
 
     implementation "com.github.tachiyomiorg:unifile:17bec43"
     implementation "com.uwetrottmann.tmdb2:tmdb-java:2.6.0"
