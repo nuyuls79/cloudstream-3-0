@@ -3,10 +3,6 @@ name: Pre-release
 on:
   push:
     branches: [ master ]
-    paths-ignore:
-      - '*.md'
-      - '**/providers.json'
-      - '**/keys.json'
 
 concurrency: 
   group: "pre-release"
@@ -29,27 +25,17 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
 
-    - name: Set checks for prerelease updates to true
-      run: |
-        sed -i "s/R\.string\.prerelease_update_key), false))/R\.string\.prerelease_update_key), true))/" app/src/main/java/com/lagradost/cloudstream3/utils/InAppUpdater.kt
-
-    - name: Update prerelease_commit_hash
-      run: |
-        COMMIT_HASH="$(git log -1 --format='%H')"
-        sed -i "s/<string name=\"prerelease_commit_hash\" translatable=\"false\">unknown_prerelease<\/string>/<string name=\"prerelease_commit_hash\">$COMMIT_HASH<\/string>/g" app/src/main/res/values/strings.xml
-
     - name: Decode Keystore
       env:
         ENCODED_STRING: ${{ secrets.KEYSTORE }}
       run: |
-        # Membuat folder khusus di workspace agar terbaca oleh build.gradle
         mkdir -p ${{ github.workspace }}/keystore
         echo $ENCODED_STRING | base64 -di > ${{ github.workspace }}/keystore/prerelease_keystore.jks
 
     - name: Run Gradle Build
-      run: ./gradlew app:assemblePrerelease --stacktrace
+      # --refresh-dependencies memaksa gradle mendownload ulang NiceHttp yang gagal tadi
+      run: ./gradlew app:assemblePrerelease --stacktrace --refresh-dependencies
       env:
-        # Menghubungkan path folder ke variabel yang kita buat di build.gradle
         TMP_KEYSTORE_PATH: ${{ github.workspace }}/keystore
         SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
         SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
