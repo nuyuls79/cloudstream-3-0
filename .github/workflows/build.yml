@@ -1,65 +1,55 @@
-name: Build CloudStream v3 APK
+name: Pre-release
 
 on:
-  workflow_dispatch:
+  push:
+    branches: [ master ]
+    paths-ignore:
+      - '*.md'
+      - '**/providers.json'
+      - '**/keys.json'
+
+concurrency: 
+  group: "pre-release"
+  cancel-in-progress: true
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up JDK 11
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: 11
-
-      # 🔥 STEP KUNCI: HAPUS SEMUA SDK & CACHE MODERN
-      - name: Remove all Android caches
-        run: |
-          rm -rf ~/.android
-          rm -rf ~/.cache/android
-          rm -rf ~/.gradle/caches
-          sudo rm -rf /usr/lib/android-sdk
-          sudo rm -rf /usr/local/lib/android
-
-      # 🔥 INSTALL SDK LEGACY (ANDROID 11 ERA)
-      - name: Install Android SDK Legacy
-        run: |
-          export ANDROID_SDK_ROOT=$HOME/android-sdk
-          export ANDROID_HOME=$ANDROID_SDK_ROOT
-          mkdir -p $ANDROID_SDK_ROOT
-
-          curl -o cmdline.zip https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip
-          unzip -q cmdline.zip
-          mkdir -p $ANDROID_SDK_ROOT/cmdline-tools
-          mv cmdline-tools $ANDROID_SDK_ROOT/cmdline-tools/latest
-
-          export PATH=$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools:$PATH
-
-          echo "sdk.dir=$ANDROID_SDK_ROOT" > local.properties
-
-          yes | sdkmanager --licenses
-          sdkmanager \
-            "platform-tools" \
-            "platforms;android-30" \
-            "build-tools;30.0.3"
-
-      - name: Grant execute permission
-        run: chmod +x gradlew
-
-      # 🔥 PAKSA GRADLE PAKAI SDK INI
-      - name: Build Debug APK
-        run: |
-          ./gradlew assembleDebug \
-            -Dandroid.sdk.path=$ANDROID_SDK_ROOT \
-            --no-daemon \
-            --stacktrace
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: cloudstream-v3-apk
-          path: app/build/outputs/apk/debug/*.apk
+    - uses: actions/checkout@v2
+    - name: Set up JDK 11
+      uses: actions/setup-java@v2
+      with:
+        java-version: '11'
+        distribution: 'adopt'
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+    - name: Set checks for prerelease updates to true by default
+      run: |
+        sed -i "s/R\.string\.prerelease_update_key), false))/R\.string\.prerelease_update_key), true))/" app/src/main/java/com/lagradost/cloudstream3/utils/InAppUpdater.kt
+    - name: Update prerelease_commit_hash
+      run: |
+        COMMIT_HASH="$(git log -1 --format='%H')"
+        sed -i "s/<string name=\"prerelease_commit_hash\" translatable=\"false\">unknown_prerelease<\/string>/<string name=\"prerelease_commit_hash\">$COMMIT_HASH<\/string>/g" app/src/main/res/values/strings.xml
+    - name: Decode Keystore
+      env:
+        ENCODED_STRING: ${{ secrets.KEYSTORE }}
+      run: |
+        TMP_KEYSTORE_FILE_PATH="${RUNNER_TEMP}"/keystore
+        mkdir -p "${TMP_KEYSTORE_FILE_PATH}"
+        echo $ENCODED_STRING | base64 -di > "${TMP_KEYSTORE_FILE_PATH}"/prerelease_keystore.jks
+    - name: Run Gradle
+      run: ./gradlew app:assemblePrerelease
+      env:
+        SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
+        SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
+        SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
+    - name: Create pre-release
+      uses: "marvinpinto/action-automatic-releases@latest"
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        automatic_release_tag: "pre-release"
+        prerelease: true
+        title: "Pre-release Build"
+        files: |
+          app/build/outputs/apk/prerelease/*.apk
