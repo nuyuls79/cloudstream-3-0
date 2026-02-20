@@ -3,12 +3,19 @@ name: Pre-release
 on:
   push:
     branches: [ master ]
+    paths-ignore:
+      - '*.md'
+
+concurrency: 
+  group: "pre-release"
+  cancel-in-progress: true
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout Code
+      uses: actions/checkout@v3
 
     - name: Set up JDK 17
       uses: actions/setup-java@v3
@@ -28,8 +35,8 @@ jobs:
         echo $ENCODED_STRING | base64 -di > ${{ github.workspace }}/keystore/prerelease_keystore.jks
 
     - name: Run Gradle Build
-      # --no-daemon mencegah error metadata XML SDK pada runner GitHub
-      run: ./gradlew app:assemblePrerelease --stacktrace --no-daemon --refresh-dependencies
+      # Parameter -Djdk.xml.entityExpansionLimit=0 adalah obat untuk error 'extension-level' di JDK 17
+      run: ./gradlew app:assemblePrerelease --stacktrace --no-daemon --refresh-dependencies -Dorg.gradle.jvmargs="-Djdk.xml.entityExpansionLimit=0"
       env:
         TMP_KEYSTORE_PATH: ${{ github.workspace }}/keystore
         SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
@@ -42,5 +49,6 @@ jobs:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
         automatic_release_tag: "pre-release"
         prerelease: true
+        title: "Pre-release Build"
         files: |
           app/build/outputs/apk/prerelease/*.apk
