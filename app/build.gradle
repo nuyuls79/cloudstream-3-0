@@ -140,7 +140,7 @@ dependencies {
 
     /* ===== NETWORKING (STABLE MIRROR) ===== */
     // Menggunakan mirror atau versi yang lebih umum tersedia
-    implementation 'com.github.lagradost:NiceHttp:0.4.7'
+    implementation 'com.github.lagradost:NiceHttp:0.4.2'
     
     implementation "com.github.tachiyomiorg:unifile:17bec43"
     implementation "com.uwetrottmann.tmdb2:tmdb-java:2.6.0"
