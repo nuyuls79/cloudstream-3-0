@@ -4,21 +4,16 @@ on:
   push:
     branches: [ master ]
 
-concurrency: 
-  group: "pre-release"
-  cancel-in-progress: true
-
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout Code
-      uses: actions/checkout@v3
+    - uses: actions/checkout@v3
 
-    - name: Set up JDK 11
+    - name: Set up JDK 17
       uses: actions/setup-java@v3
       with:
-        java-version: '11'
+        java-version: '17'
         distribution: 'temurin'
         cache: 'gradle'
 
@@ -33,20 +28,19 @@ jobs:
         echo $ENCODED_STRING | base64 -di > ${{ github.workspace }}/keystore/prerelease_keystore.jks
 
     - name: Run Gradle Build
-      # Kita tambahkan --info untuk melihat proses download library secara detail
-      run: ./gradlew app:assemblePrerelease --stacktrace --info --refresh-dependencies
+      # Kita gunakan --no-daemon untuk mencegah memory leak di CI
+      run: ./gradlew app:assemblePrerelease --stacktrace --no-daemon --refresh-dependencies
       env:
         TMP_KEYSTORE_PATH: ${{ github.workspace }}/keystore
         SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
         SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
         SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
-        
-    - name: Create pre-release
+
+    - name: Create release
       uses: "marvinpinto/action-automatic-releases@latest"
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
         automatic_release_tag: "pre-release"
         prerelease: true
-        title: "Pre-release Build"
         files: |
           app/build/outputs/apk/prerelease/*.apk
