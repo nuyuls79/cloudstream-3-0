@@ -138,10 +138,10 @@ dependencies {
     implementation "androidx.work:work-runtime:2.7.1"
     implementation "androidx.work:work-runtime-ktx:2.7.1"
 
-    /* ===== NETWORKING (STABLE BYPASS) ===== */
-   // Menggunakan commit hash terbaru yang stabil dari NiceHttp
-    implementation 'com.github.Blatzar:NiceHttp:29037048c1'
-
+    /* ===== NETWORKING (STABLE MIRROR) ===== */
+    // Menggunakan mirror atau versi yang lebih umum tersedia
+    implementation 'com.github.lagradost:NiceHttp:0.4.7'
+    
     implementation "com.github.tachiyomiorg:unifile:17bec43"
     implementation "com.uwetrottmann.tmdb2:tmdb-java:2.6.0"
     implementation 'com.github.discord:OverlappingPanels:0.1.3'
