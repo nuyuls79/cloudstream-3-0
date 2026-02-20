@@ -140,7 +140,7 @@ dependencies {
 
     /* ===== NETWORKING (STABLE BYPASS) ===== */
    // Menggunakan commit hash terbaru yang stabil dari NiceHttp
-    implementation 'com.github.Blatzar:NiceHttp:8984950'
+    implementation 'com.github.Blatzar:NiceHttp:29037048c1'
 
     implementation "com.github.tachiyomiorg:unifile:17bec43"
     implementation "com.uwetrottmann.tmdb2:tmdb-java:2.6.0"
