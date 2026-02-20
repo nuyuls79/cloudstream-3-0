@@ -33,14 +33,14 @@ jobs:
         echo $ENCODED_STRING | base64 -di > ${{ github.workspace }}/keystore/prerelease_keystore.jks
 
     - name: Run Gradle Build
-      # --refresh-dependencies memaksa gradle mendownload ulang NiceHttp yang gagal tadi
-      run: ./gradlew app:assemblePrerelease --stacktrace --refresh-dependencies
+      # Kita tambahkan --info untuk melihat proses download library secara detail
+      run: ./gradlew app:assemblePrerelease --stacktrace --info --refresh-dependencies
       env:
         TMP_KEYSTORE_PATH: ${{ github.workspace }}/keystore
         SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
         SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
         SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
-
+        
     - name: Create pre-release
       uses: "marvinpinto/action-automatic-releases@latest"
       with:
