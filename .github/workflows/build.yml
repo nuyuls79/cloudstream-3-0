@@ -28,7 +28,7 @@ jobs:
         echo $ENCODED_STRING | base64 -di > ${{ github.workspace }}/keystore/prerelease_keystore.jks
 
     - name: Run Gradle Build
-      # Gunakan flag --no-daemon untuk stabilitas di GitHub Actions
+      # --no-daemon mencegah error metadata XML SDK pada runner GitHub
       run: ./gradlew app:assemblePrerelease --stacktrace --no-daemon --refresh-dependencies
       env:
         TMP_KEYSTORE_PATH: ${{ github.workspace }}/keystore
