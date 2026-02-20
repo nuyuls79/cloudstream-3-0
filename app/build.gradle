@@ -138,8 +138,9 @@ dependencies {
     implementation "androidx.work:work-runtime:2.7.1"
     implementation "androidx.work:work-runtime-ktx:2.7.1"
 
-    /* ===== NETWORKING (DIUPDATE DARI 0.3.2 KE 0.4.5) ===== */
-    implementation 'com.github.Blatzar:NiceHttp:0.4.1'
+    /* ===== NETWORKING (STABLE BYPASS) ===== */
+   // Menggunakan commit hash terbaru yang stabil dari NiceHttp
+    implementation 'com.github.Blatzar:NiceHttp:8984950'
 
     implementation "com.github.tachiyomiorg:unifile:17bec43"
     implementation "com.uwetrottmann.tmdb2:tmdb-java:2.6.0"
