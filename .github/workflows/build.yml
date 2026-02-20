@@ -17,6 +17,9 @@ jobs:
         distribution: 'temurin'
         cache: 'gradle'
 
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@v3
+
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
 
@@ -28,7 +31,7 @@ jobs:
         echo $ENCODED_STRING | base64 -di > ${{ github.workspace }}/keystore/prerelease_keystore.jks
 
     - name: Run Gradle Build
-      # Kita gunakan --no-daemon untuk mencegah memory leak di CI
+      # --no-daemon dan --refresh-dependencies wajib ada untuk membersihkan cache JitPack yang rusak
       run: ./gradlew app:assemblePrerelease --stacktrace --no-daemon --refresh-dependencies
       env:
         TMP_KEYSTORE_PATH: ${{ github.workspace }}/keystore
