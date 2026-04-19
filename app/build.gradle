@@ -171,7 +171,7 @@ dependencies {
 
     implementation 'com.github.albfernandez:juniversalchardet:2.4.0'
 
-    implementation 'com.github.TeamNewPipe:NewPipeExtractor:v0.23.3'
+    implementation 'com.github.teamnewpipe:NewPipeExtractor:v0.26.0'
 
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
 }
