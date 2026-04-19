@@ -1,0 +1,46 @@
+name: Pre-release Baru
+
+on:
+  push:
+    branches: [ master ]
+    paths-ignore:
+      - '*.md'
+
+concurrency:
+  group: "pre-release"
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+
+    - name: Set up JDK
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+
+    - name: Build APK
+      run: ./gradlew assembleDebug
+
+    - name: Rename APK
+      run: |
+        mkdir release
+        cp app/build/outputs/apk/debug/*.apk release/cloudstream-prerelease.apk
+
+    - name: Create Pre-release
+      uses: marvinpinto/action-automatic-releases@latest
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        automatic_release_tag: "pre-release"
+        prerelease: true
+        title: "Pre-release Build"
+        files: |
+          release/*.apk
