@@ -4,42 +4,44 @@ plugins {
     id 'kotlin-kapt'
 }
 
-/* ===== SIGNING (DIPERBAIKI UNTUK GITHUB ACTIONS) ===== */
-// Skrip ini akan mencari file keystore di folder yang ditentukan oleh GitHub Actions
+/* ===== SIGNING (GITHUB ACTIONS SAFE) ===== */
 def keystorePath = System.getenv("TMP_KEYSTORE_PATH") ?: (System.getProperty("user.home") + "/work/_temp/keystore/")
 def keystoreDir = new File(keystorePath)
-def prerelaseStoreFile = null
+def prereleaseStoreFile = null
 
 if (keystoreDir.exists()) {
     def files = keystoreDir.listFiles()
     if (files != null && files.length > 0) {
-        prerelaseStoreFile = files[0]
+        prereleaseStoreFile = files[0]
     }
 }
 
 android {
     compileSdkVersion 31
-    buildToolsVersion "30.0.3"
 
     defaultConfig {
         applicationId "com.stormunblessed.cloudstream3"
         minSdkVersion 21
-        targetSdkVersion 31 // Disarankan disamakan dengan compileSdkVersion
+        targetSdkVersion 31
 
         versionCode 49
         versionName "3.0.1"
 
         resValue "string", "app_version", "${versionName}${versionNameSuffix ?: ""}"
 
-        buildConfigField("String", "BUILDDATE", "\"${new Date().format("yyyy-MM-dd HH:mm")}\"")
+        buildConfigField(
+                "String",
+                "BUILDDATE",
+                "\"${new Date().format("yyyy-MM-dd HH:mm")}\""
+        )
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     signingConfigs {
         prerelease {
-            if (prerelaseStoreFile != null) {
-                storeFile file(prerelaseStoreFile)
+            if (prereleaseStoreFile != null) {
+                storeFile file(prereleaseStoreFile)
                 storePassword System.getenv("SIGNING_STORE_PASSWORD")
                 keyAlias System.getenv("SIGNING_KEY_ALIAS")
                 keyPassword System.getenv("SIGNING_KEY_PASSWORD")
@@ -48,6 +50,7 @@ android {
     }
 
     buildTypes {
+
         debug {
             debuggable true
             applicationIdSuffix ".debug"
@@ -57,7 +60,9 @@ android {
             debuggable false
             minifyEnabled false
             shrinkResources false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile(
+                    'proguard-android-optimize.txt'
+            ), 'proguard-rules.pro'
         }
 
         prerelease {
@@ -86,14 +91,17 @@ android {
 }
 
 /* ===== REPOSITORIES ===== */
+
 repositories {
     google()
     mavenCentral()
-    maven { url "https://jitpack.io" }
+    maven { url 'https://jitpack.io' }
 }
 
 /* ===== DEPENDENCIES ===== */
+
 dependencies {
+
     implementation 'androidx.core:core-ktx:1.8.0'
     implementation 'androidx.appcompat:appcompat:1.4.2'
     implementation 'com.google.android.material:material:1.5.0'
@@ -105,6 +113,8 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.5.0'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.0'
 
+    implementation "androidx.preference:preference-ktx:1.2.0"
+
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
@@ -112,44 +122,56 @@ dependencies {
     implementation "io.karn:khttp-android:0.1.2"
     implementation "com.fasterxml.jackson.module:jackson-module-kotlin:2.13.1"
 
-    implementation "androidx.preference:preference-ktx:1.2.0"
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+
+    /* ===== GLIDE ===== */
 
     implementation 'com.github.bumptech.glide:glide:4.13.1'
     kapt 'com.github.bumptech.glide:compiler:4.13.1'
     implementation 'com.github.bumptech.glide:okhttp3-integration:4.13.0'
     implementation 'jp.wasabeef:glide-transformations:4.3.0'
 
-    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+    /* ===== EXOPLAYER ===== */
 
     implementation 'com.google.android.exoplayer:exoplayer:2.16.1'
     implementation 'com.google.android.exoplayer:extension-cast:2.16.1'
     implementation 'com.google.android.exoplayer:extension-mediasession:2.16.1'
     implementation 'com.google.android.exoplayer:extension-okhttp:2.16.1'
 
+    /* ===== ACRA ===== */
+
     implementation "ch.acra:acra-core:5.8.4"
     implementation "ch.acra:acra-toast:5.8.4"
+
+    /* ===== AUTO SERVICE ===== */
 
     compileOnly "com.google.auto.service:auto-service-annotations:1.0"
     kapt "com.google.auto.service:auto-service:1.0"
 
+    /* ===== UTIL ===== */
+
     implementation 'com.jaredrummler:colorpicker:1.1.0'
     implementation 'org.mozilla:rhino:1.7.14'
+
+    /* ===== WORK MANAGER ===== */
 
     implementation "androidx.work:work-runtime:2.7.1"
     implementation "androidx.work:work-runtime-ktx:2.7.1"
 
-    /* ===== NETWORKING (STABLE MIRROR) ===== */
-    // Menggunakan mirror atau versi yang lebih umum tersedia
-    implementation 'com.github.lagradost:NiceHttp:0.4.16'
-    
+    /* ===== NETWORKING ===== */
+
+    implementation 'com.github.lagradost:NiceHttp:0.4.15'
+
     implementation "com.github.tachiyomiorg:unifile:17bec43"
     implementation "com.uwetrottmann.tmdb2:tmdb-java:2.6.0"
     implementation 'com.github.discord:OverlappingPanels:0.1.3'
 
     implementation 'com.facebook.shimmer:shimmer:0.5.0'
     implementation "androidx.tvprovider:tvprovider:1.0.0"
+
     implementation 'com.github.albfernandez:juniversalchardet:2.4.0'
-    implementation 'com.github.TeamNewPipe:NewPipeExtractor:master-SNAPSHOT'
+
+    implementation 'com.github.TeamNewPipe:NewPipeExtractor:v0.23.3'
 
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
 }
