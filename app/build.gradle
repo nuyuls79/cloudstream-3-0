@@ -151,7 +151,8 @@ dependencies {
 
     /* NETWORKING */
 
-    implementation 'com.github.recloudstream:NiceHttp:0.4.0'
+    implementation "io.karn:khttp-android:0.1.2"
+    implementation "com.fasterxml.jackson.module:jackson-module-kotlin:2.13.1"
 
     implementation "com.github.tachiyomiorg:unifile:17bec43"
     implementation "com.uwetrottmann.tmdb2:tmdb-java:2.6.0"
