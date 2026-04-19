@@ -160,7 +160,7 @@ dependencies {
 
     /* ===== NETWORKING ===== */
 
-    implementation 'com.github.lagradost:NiceHttp:9f6d1f3'
+    implementation 'com.github.lagradost:NiceHttp:0.4.0'
 
     implementation "com.github.tachiyomiorg:unifile:17bec43"
     implementation "com.uwetrottmann.tmdb2:tmdb-java:2.6.0"
