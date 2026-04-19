@@ -1,4 +1,4 @@
-name: Pre-release Baru
+name: Pre-release Baru Fix
 
 on:
   push:
