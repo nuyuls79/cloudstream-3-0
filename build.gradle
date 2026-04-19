@@ -1,6 +1,7 @@
 // Top-level build file for CloudStream v3 (LEGACY SAFE)
 
 buildscript {
+
     ext.kotlin_version = "1.7.10"
 
     repositories {
@@ -10,7 +11,7 @@ buildscript {
     }
 
     dependencies {
-        // Android Gradle Plugin (LEGACY, WAJIB)
+        // Android Gradle Plugin
         classpath "com.android.tools.build:gradle:7.0.4"
 
         // Kotlin Gradle Plugin
@@ -19,18 +20,19 @@ buildscript {
 }
 
 allprojects {
+
     repositories {
         google()
         mavenCentral()
-        maven { 
-            url 'https://jitpack.io'
-            // Tambahkan content filtering agar tidak mencari library google di jitpack (opsional tapi bagus untuk speed)
-            content { includeGroup "com.github.Blatzar" }
-            content { includeGroup "com.github.lagradost" }
+
+        // Jitpack repository (required for CloudStream libraries)
+        maven {
+            url "https://jitpack.io"
         }
     }
 }
 
+// Clean task
 tasks.register("clean", Delete) {
     delete rootProject.buildDir
 }
