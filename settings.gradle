@@ -1,3 +1,12 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        google()
+        mavenCentral()
+        maven { url 'https://jitpack.io' }
+    }
+}
+
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
 
@@ -8,5 +17,5 @@ dependencyResolutionManagement {
     }
 }
 
+rootProject.name = "cloudstream"
 include ':app'
-rootProject.name = "CloudStream"
