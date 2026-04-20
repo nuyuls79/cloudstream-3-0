@@ -132,7 +132,7 @@ dependencies {
 
     /* NETWORKING */
     
-    implementation(libs.nicehttp)
+    
     implementation 'org.jsoup:jsoup:1.13.1'
     implementation "io.karn:khttp-android:0.1.2"
     implementation "com.fasterxml.jackson.module:jackson-module-kotlin:2.13.1"
