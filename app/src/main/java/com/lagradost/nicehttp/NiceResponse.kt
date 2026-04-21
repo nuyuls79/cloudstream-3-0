@@ -6,7 +6,6 @@ import okhttp3.ResponseBody
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import java.io.StringWriter
-import kotlin.reflect.KClass
 
 class NiceResponse(
     private val okhttpResponse: Response,
@@ -24,7 +23,7 @@ class NiceResponse(
     val isSuccessful: Boolean = okhttpResponse.isSuccessful
 
     val body: ResponseBody by lazy {
-        okhttpResponse.body!!
+        okhttpResponse.body ?: error("Response body is null")
     }
 
     val url: String by lazy {
@@ -93,8 +92,8 @@ class NiceResponse(
             }
 
             consumedBody = true
+
             val result = body.string()
-            body.close()
             result
         }
     }
@@ -140,4 +139,4 @@ class NiceResponse(
     override fun toString(): String {
         return text
     }
-}'
+}
