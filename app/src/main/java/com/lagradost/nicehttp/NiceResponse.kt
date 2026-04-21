@@ -8,7 +8,7 @@ import org.jsoup.nodes.Document
 import java.io.StringWriter
 
 class NiceResponse(
-    private val okhttpResponse: Response,
+    val okhttpResponse: Response,
     private val parser: ResponseParser? = null
 ) {
 
@@ -18,9 +18,14 @@ class NiceResponse(
 
     private var consumedBody = false
 
-    val code: Int = okhttpResponse.code
-    val headers: Headers = okhttpResponse.headers
-    val isSuccessful: Boolean = okhttpResponse.isSuccessful
+    val code: Int
+        get() = okhttpResponse.code
+
+    val headers: Headers
+        get() = okhttpResponse.headers
+
+    val isSuccessful: Boolean
+        get() = okhttpResponse.isSuccessful
 
     val body: ResponseBody by lazy {
         okhttpResponse.body ?: error("Response body is null")
@@ -76,8 +81,6 @@ class NiceResponse(
             }
 
             reader.close()
-            body.close()
-
             writer.toString()
         }
     }
@@ -92,9 +95,7 @@ class NiceResponse(
             }
 
             consumedBody = true
-
-            val result = body.string()
-            result
+            body.string()
         }
     }
 
